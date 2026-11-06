@@ -748,3 +748,4 @@ else:
             st.session_state.current_run_id = None
             st.success("Lesson deleted.")
             st.rerun()
+

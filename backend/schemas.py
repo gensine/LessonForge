@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ── Enums ──────────────────────────────────────────────────────────────────
@@ -61,6 +61,22 @@ class LessonInput(BaseModel):
     """User input to create a new lesson."""
     title: str = Field(..., min_length=3, max_length=200, description="Lesson title")
     objective: str = Field(..., min_length=10, max_length=1000, description="Learning objective")
+
+    @field_validator("title")
+    @classmethod
+    def validate_title_not_whitespace(cls, v: str) -> str:
+        trimmed = v.strip()
+        if len(trimmed) < 3:
+            raise ValueError("Title must contain at least 3 non-whitespace characters.")
+        return trimmed
+
+    @field_validator("objective")
+    @classmethod
+    def validate_objective_not_whitespace(cls, v: str) -> str:
+        trimmed = v.strip()
+        if len(trimmed) < 10:
+            raise ValueError("Objective must contain at least 10 non-whitespace characters.")
+        return trimmed
 
 
 # ── Source models ──────────────────────────────────────────────────────────
