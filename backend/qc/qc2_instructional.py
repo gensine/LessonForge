@@ -430,3 +430,4 @@ async def execute_qc2(run: LessonRun) -> None:
         f"({len(programmatic_issues)} programmatic, {len(llm_issues)} LLM-detected), "
         f"coverage matrix: {len(coverage_dict)} objective components"
     )
+

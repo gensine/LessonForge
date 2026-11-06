@@ -246,3 +246,4 @@ def apply_fixes(run: LessonRun) -> dict:
     )
 
     return result
+

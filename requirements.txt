@@ -36,6 +36,9 @@ tenacity==9.0.0
 aiofiles==24.1.0
 jinja2==3.1.5
 
+# Frontend
+streamlit==1.40.2
+
 # CORS
 python-multipart==0.0.20
 
