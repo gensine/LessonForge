@@ -273,6 +273,8 @@ else:
                 disabled=not gen_ready,
                 use_container_width=True,
             ):
+                if len(run.versions) > 0:
+                    st.info("ℹ️ Regenerating creates a new version draft without overwriting your saved edits.")
                 with st.spinner("Generating 45-minute lesson..."):
                     try:
                         import asyncio
@@ -281,7 +283,7 @@ else:
 
                         runner = StepRunner(run)
                         asyncio.run(runner.execute(StepName.GENERATE, execute_generation))
-                        st.success("✅ Lesson generated!")
+                        st.success("✅ Lesson generated as a new version!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Generation failed: {str(e)}")
@@ -558,6 +560,38 @@ else:
             else:
                 st.info("Run QC2 to see the instructional quality report.")
 
+        # Re-run QC options if recommendations were applied
+        if any(v.label.startswith("After QC fixes") for v in run.versions):
+            st.divider()
+            st.info("💡 You have applied fixes to this lesson! You can re-run QC to verify improved scores.")
+            col_r1, col_r2 = st.columns(2)
+            with col_r1:
+                if st.button("🔄 Re-run QC1 (Verify Fixes)", use_container_width=True):
+                    with st.spinner("Re-auditing factual accuracy on updated version..."):
+                        try:
+                            import asyncio
+                            from backend.qc.qc1_factual import execute_qc1
+                            from backend.step_runner import StepRunner
+                            runner = StepRunner(run)
+                            asyncio.run(runner.execute(StepName.QC1, execute_qc1))
+                            st.success("✅ QC1 re-audit complete!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"❌ QC1 re-audit failed: {str(e)}")
+            with col_r2:
+                if st.button("🔄 Re-run QC2 (Verify Fixes)", use_container_width=True):
+                    with st.spinner("Re-auditing instructional quality on updated version..."):
+                        try:
+                            import asyncio
+                            from backend.qc.qc2_instructional import execute_qc2
+                            from backend.step_runner import StepRunner
+                            runner = StepRunner(run)
+                            asyncio.run(runner.execute(StepName.QC2, execute_qc2))
+                            st.success("✅ QC2 re-audit complete!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"❌ QC2 re-audit failed: {str(e)}")
+
         # Apply fixes button
         st.divider()
         accepted_count = 0
@@ -629,20 +663,32 @@ else:
 
             # Section editor
             st.subheader("✏️ Edit Sections")
+            st.caption("Auto-drafting keeps changes in memory until saved. Saving automatically creates a new immutable version snapshot.")
+
+            # Track draft edits in session_state for autosave feel
+            if f"drafts_{run.id}" not in st.session_state:
+                st.session_state[f"drafts_{run.id}"] = {}
 
             for section in content.sections:
                 with st.expander(f"Edit: {section.heading} ({section.type.value}, {section.est_minutes:.0f} min)"):
+                    default_heading = st.session_state[f"drafts_{run.id}"].get(f"h_{section.id}", section.heading)
+                    default_body = st.session_state[f"drafts_{run.id}"].get(f"b_{section.id}", section.body_md)
+
                     new_heading = st.text_input(
                         "Heading",
-                        value=section.heading,
+                        value=default_heading,
                         key=f"edit_heading_{section.id}",
                     )
                     new_body = st.text_area(
                         "Content (Markdown)",
-                        value=section.body_md,
+                        value=default_body,
                         height=300,
                         key=f"edit_body_{section.id}",
                     )
+                    # Cache in session state as draft
+                    st.session_state[f"drafts_{run.id}"][f"h_{section.id}"] = new_heading
+                    st.session_state[f"drafts_{run.id}"][f"b_{section.id}"] = new_body
+
                     new_minutes = st.number_input(
                         "Estimated Minutes",
                         value=float(section.est_minutes),
@@ -652,27 +698,38 @@ else:
                         key=f"edit_min_{section.id}",
                     )
 
-                    if st.button("💾 Save Section", key=f"save_{section.id}"):
-                        # Create new version with the edit
-                        new_content = run.current_version.content.model_copy(deep=True)
-                        for s in new_content.sections:
-                            if s.id == section.id:
-                                s.heading = new_heading
-                                s.body_md = new_body
-                                s.est_minutes = new_minutes
-                                break
+                    col_save, col_discard = st.columns([1, 1])
+                    with col_save:
+                        if st.button("💾 Save Section as New Version", key=f"save_{section.id}", use_container_width=True):
+                            # Create new version with the edit
+                            new_content = run.current_version.content.model_copy(deep=True)
+                            for s in new_content.sections:
+                                if s.id == section.id:
+                                    s.heading = new_heading
+                                    s.body_md = new_body
+                                    s.est_minutes = new_minutes
+                                    break
 
-                        new_content.total_minutes = sum(s.est_minutes for s in new_content.sections)
+                            new_content.total_minutes = sum(s.est_minutes for s in new_content.sections)
 
-                        new_version = LessonVersion(
-                            version=len(run.versions) + 1,
-                            content=new_content,
-                            label=f"Manual edit: {section.heading}",
-                        )
-                        run.versions.append(new_version)
-                        save_run(run)
-                        st.success(f"✅ Saved as version {new_version.version}")
-                        st.rerun()
+                            new_version = LessonVersion(
+                                version=len(run.versions) + 1,
+                                content=new_content,
+                                label=f"Manual edit: {new_heading}",
+                            )
+                            run.versions.append(new_version)
+                            save_run(run)
+                            # Clear draft
+                            st.session_state[f"drafts_{run.id}"].pop(f"h_{section.id}", None)
+                            st.session_state[f"drafts_{run.id}"].pop(f"b_{section.id}", None)
+                            st.success(f"✅ Saved as version {new_version.version}")
+                            st.rerun()
+
+                    with col_discard:
+                        if st.button("🔄 Reset to Current Version", key=f"discard_{section.id}", use_container_width=True):
+                            st.session_state[f"drafts_{run.id}"].pop(f"h_{section.id}", None)
+                            st.session_state[f"drafts_{run.id}"].pop(f"b_{section.id}", None)
+                            st.rerun()
         else:
             st.info("Generate the lesson first to edit sections.")
 
