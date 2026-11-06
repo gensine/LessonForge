@@ -482,3 +482,4 @@ async def execute_generation(run: LessonRun) -> None:
         f"Total: {total_minutes:.0f} min, "
         f"Saved as version {version.version}"
     )
+

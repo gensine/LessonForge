@@ -234,3 +234,4 @@ def create_outline(run: LessonRun) -> LessonOutline:
     )
 
     return outline
+

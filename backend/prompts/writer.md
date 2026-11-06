@@ -17,3 +17,4 @@ Quality standards:
 - Use analogies to make abstract concepts concrete
 - Include practical applications for each concept
 - Highlight common misconceptions or pitfalls
+
