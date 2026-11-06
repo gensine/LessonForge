@@ -153,3 +153,4 @@ async def search_open_library(queries: list[str], max_results: int = 2) -> list[
 
     logger.info(f"Open Library books found: {len(all_books)}")
     return all_books[:max_results]
+

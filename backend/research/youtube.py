@@ -305,3 +305,4 @@ def _parse_iso_duration(iso_duration: str) -> float:
         seconds = int(s_match.group(1))
 
     return hours * 60 + minutes + seconds / 60
+

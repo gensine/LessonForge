@@ -211,3 +211,4 @@ async def execute_research(run: LessonRun) -> None:
 
     # Save to the run
     run.source_pack = source_pack
+

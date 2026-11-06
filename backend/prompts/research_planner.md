@@ -10,3 +10,4 @@ Rules:
 4. YouTube queries should find educational explanations and tutorials.
 5. Extract the key concepts that the lesson MUST cover based on the objective.
 6. Be specific — avoid overly generic queries.
+

@@ -205,3 +205,4 @@ def build_web_sources(results: list[dict]) -> list[Source]:
         sources.append(source)
 
     return sources
+

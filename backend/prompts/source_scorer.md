@@ -12,3 +12,4 @@ Given a source (URL, title, snippet, and extracted text), evaluate it for:
 2. **Relevance** (0.0–1.0): How directly does this source address the lesson objective?
 
 Provide a one-line reason for each score.
+
