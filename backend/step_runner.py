@@ -6,7 +6,7 @@ message to DB. Never deletes previous data on failure.
 
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, Any
 
 from backend.schemas import LessonRun, StepName, StepStatus
@@ -48,7 +48,7 @@ class StepRunner:
 
         # Mark as running
         step.status = StepStatus.RUNNING
-        step.started_at = datetime.utcnow()
+        step.started_at = datetime.now(timezone.utc)
         step.error_message = ""
         self.run.status = step_name
         self._save()
@@ -65,7 +65,7 @@ class StepRunner:
 
             # Mark as success
             step.status = StepStatus.SUCCESS
-            step.completed_at = datetime.utcnow()
+            step.completed_at = datetime.now(timezone.utc)
             self._save()
 
             elapsed = (step.completed_at - step.started_at).total_seconds()
@@ -76,10 +76,10 @@ class StepRunner:
         except Exception as e:
             # Mark as failed but NEVER delete previous data
             step.status = StepStatus.FAILED
-            step.completed_at = datetime.utcnow()
+            step.completed_at = datetime.now(timezone.utc)
             step.error_message = str(e)
             self.run.error_log.append(
-                f"[{datetime.utcnow().isoformat()}] {step_name.value}: {str(e)}"
+                f"[{datetime.now(timezone.utc).isoformat()}] {step_name.value}: {str(e)}"
             )
             self._save()
 
@@ -91,6 +91,6 @@ class StepRunner:
 
     def _save(self):
         """Persist current run state to database."""
-        self.run.updated_at = datetime.utcnow()
+        self.run.updated_at = datetime.now(timezone.utc)
         self.db.save_run(self.run)
 

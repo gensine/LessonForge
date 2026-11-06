@@ -6,7 +6,7 @@ with the full LessonRun model serialized. Versions are stored inline.
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -33,8 +33,8 @@ class LessonRunRow(Base):
     objective = Column(Text, nullable=False)
     data_json = Column(Text, nullable=False)  # Full LessonRun as JSON
     version_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 # ── Database manager ──────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ class Database:
 
     def save_run(self, run: LessonRun) -> None:
         """Save or update a lesson run."""
-        run.updated_at = datetime.utcnow()
+        run.updated_at = datetime.now(timezone.utc)
         data_json = run.model_dump_json()
 
         with self._get_session() as session:

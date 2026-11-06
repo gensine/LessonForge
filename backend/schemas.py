@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -187,7 +187,7 @@ class QCReport(BaseModel):
     issues: list[QCIssue] = Field(default_factory=list)
     # QC2-specific
     coverage_matrix: dict[str, list[str]] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── Lesson run (top-level) ────────────────────────────────────────────────
@@ -206,7 +206,7 @@ class LessonVersion(BaseModel):
     version: int
     content: LessonContent
     label: str = ""  # e.g., "AI Draft", "After QC1 fixes", "Manual edit"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class LessonRun(BaseModel):
@@ -225,8 +225,8 @@ class LessonRun(BaseModel):
     versions: list[LessonVersion] = Field(default_factory=list)
     qc1_report: Optional[QCReport] = None
     qc2_report: Optional[QCReport] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_used: str = ""
     error_log: list[str] = Field(default_factory=list)
 

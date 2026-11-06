@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
 # Load .env file from project root
@@ -12,6 +12,11 @@ load_dotenv(dotenv_path=env_path)
 
 class Settings(BaseSettings):
     """Central configuration for the Lesson Creator application."""
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
     # LLM settings
     llm_provider: str = "gemini"  # gemini | openai | claude
@@ -38,10 +43,6 @@ class Settings(BaseSettings):
     prompts_dir: Path = Path(__file__).resolve().parent / "prompts"
     exports_dir: Path = Path(__file__).resolve().parent.parent / "exports"
     logs_dir: Path = Path(__file__).resolve().parent.parent / "logs"
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 settings = Settings()

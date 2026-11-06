@@ -11,7 +11,7 @@ Exports:
 import logging
 import os
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from backend.config import settings
@@ -411,7 +411,7 @@ def export_bundle(run: LessonRun) -> dict:
         f"Version Label: {run.current_version.label}\n"
         f"Model Used: {run.model_used}\n"
         f"Created: {run.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"Exported: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"Exported: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
         f"Total Versions: {len(run.versions)}\n"
         f"QC1 Score: {run.qc1_report.score if run.qc1_report else 'N/A'}/10\n"
         f"QC2 Score: {run.qc2_report.score if run.qc2_report else 'N/A'}/10\n"

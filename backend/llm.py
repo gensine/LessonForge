@@ -116,7 +116,7 @@ def _call_claude(prompt: str, system_prompt: str, temperature: float, max_tokens
         response = client.messages.create(
             model=settings.llm_model,
             max_tokens=max_tokens,
-            system=system_prompt if system_prompt else "You are a helpful assistant.",
+            system=system_prompt if system_prompt else "You are an educational content generation and analysis assistant.",
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
         )
