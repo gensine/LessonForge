@@ -70,11 +70,15 @@ async def search_web(queries: list[str], max_results_per_query: int = 4) -> list
                     url = result.get("url", "")
                     if url and url not in seen_urls:
                         seen_urls.add(url)
+                        snippet_text = result.get("content") or ""
+                        raw_text = result.get("raw_content") or ""
+                        full_content = (raw_text if raw_text else snippet_text)[:5000]
+
                         all_results.append({
                             "url": url,
                             "title": result.get("title", ""),
-                            "snippet": result.get("content", "")[:500],
-                            "content": result.get("raw_content", result.get("content", ""))[:5000],
+                            "snippet": snippet_text[:500],
+                            "content": full_content,
                         })
 
             logger.info(f"Web search '{query}': {len(data.get('results', []))} results")

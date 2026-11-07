@@ -45,11 +45,6 @@ class WrittenSections(BaseModel):
     sections: list[WrittenSection]
 
 
-class WrittenQuestions(BaseModel):
-    """LLM-generated knowledge check questions."""
-    questions: list[WrittenQuestion]
-
-
 class WrittenQuestion(BaseModel):
     """A single knowledge check question with answer."""
     question: str
@@ -58,8 +53,9 @@ class WrittenQuestion(BaseModel):
     explanation: str = Field(description="Why the correct answer is right")
 
 
-# Fix forward reference
-WrittenQuestions.model_rebuild()
+class WrittenQuestions(BaseModel):
+    """LLM-generated knowledge check questions."""
+    questions: list[WrittenQuestion]
 
 
 # ── Source pack text builder ─────────────────────────────────────────────
