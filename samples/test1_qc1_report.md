@@ -37,3 +37,4 @@ The lesson content adheres strictly to official standards outlined in RFC 9110 a
 - **Observation:** The lesson states that GET parameters are in the query string and bodies are generally ignored.
 - **Suggested Polish:** Explicitly mention that while HTTP/1.1 allows a message body in GET, HTTP caching proxies often strip or reject it.
 - **Status:** APPLIED (Resolved in Final Draft)
+

@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # LLM settings
     llm_provider: str = "gemini"  # gemini | openai | claude
     llm_api_key: str = ""
-    llm_model: str = "gemini-2.0-flash"
+    llm_model: str = "gemini-3.5-flash-lite"
 
     # Web search
     tavily_api_key: str = ""

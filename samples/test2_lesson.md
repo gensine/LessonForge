@@ -126,3 +126,4 @@ echo "Documentation update" >> README.md && git commit -am "docs: update readme"
 ## References & Authoritative Documentation
 - **[W1] Pro Git Book (Scott Chacon & Ben Straub):** https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 - **[W2] Atlassian Git Tutorials (Merging vs Rebasing):** https://www.atlassian.com/git/tutorials/merging-vs-rebasing
+

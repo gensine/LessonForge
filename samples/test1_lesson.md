@@ -144,3 +144,4 @@ Open your terminal and execute the following commands to inspect the HTTP exchan
 - **[W1] MDN Web Docs - HTTP Methods:** https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
 - **[W2] RFC 9110 - HTTP Semantics:** https://www.rfc-editor.org/rfc/rfc9110.html
 - **[B1] HTTP: The Definitive Guide** by David Gourley & Brian Totty (O'Reilly Media)
+

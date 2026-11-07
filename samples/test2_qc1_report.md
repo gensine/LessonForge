@@ -25,3 +25,4 @@ The lesson content demonstrates exceptional factual accuracy verified against th
 ## 3. URL & Integrity Verification
 - `https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging` → HTTP 200 OK
 - `https://www.atlassian.com/git/tutorials/merging-vs-rebasing` → HTTP 200 OK
+

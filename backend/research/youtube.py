@@ -138,11 +138,18 @@ def get_transcript(video_id: str, max_chars: int = 3000) -> Optional[str]:
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
 
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+        # youtube-transcript-api v1.2+ uses YouTubeTranscriptApi().fetch(video_id)
+        # while older versions used YouTubeTranscriptApi.get_transcript(video_id)
+        if hasattr(YouTubeTranscriptApi, "get_transcript"):
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+            full_text = " ".join(entry["text"] for entry in transcript_list)
+        else:
+            api_instance = YouTubeTranscriptApi()
+            transcript_obj = api_instance.fetch(video_id)
+            snippets = getattr(transcript_obj, "snippets", [])
+            full_text = " ".join(getattr(entry, "text", "") for entry in snippets)
 
-        # Combine transcript entries
-        full_text = " ".join(entry["text"] for entry in transcript_list)
-        return full_text[:max_chars]
+        return full_text[:max_chars] if full_text else None
 
     except Exception as e:
         logger.warning(f"Transcript unavailable for video {video_id}: {e}")

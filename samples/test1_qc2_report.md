@@ -34,3 +34,4 @@
 - **Observation:** Original draft lacked interactive verification steps for students.
 - **Suggested Improvement:** Add hands-on `curl` commands with `httpbin.org` to allow students to see requests in real time.
 - **Status:** APPLIED (Integrated into Section 5)
+

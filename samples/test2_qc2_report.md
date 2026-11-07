@@ -21,3 +21,4 @@
 - **Visual ASCII Graphs:** Crucial for spatial understanding of Git DAG (Directed Acyclic Graph) topologies.
 - **Assessment Quality:** Directly tests whether students understand under-the-hood pointer mechanisms and commit hash mutability.
 - **Timing Feasibility:** Fits cleanly into 45 minutes with hands-on practice.
+

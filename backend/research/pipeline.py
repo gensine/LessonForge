@@ -110,7 +110,7 @@ async def execute_research(run: LessonRun) -> None:
         plan = plan_research(run.title, run.objective)
     except Exception as e:
         logger.error(f"Query planning failed: {e}")
-        # Fallback: use title/objective as basic queries
+        # Fallback: create at least 3 distinct key concepts to guarantee schema compliance
         plan = ResearchPlan(
             web_queries=[
                 f"{run.title} tutorial",
@@ -122,9 +122,13 @@ async def execute_research(run: LessonRun) -> None:
                 f"{run.title} tutorial",
                 f"{run.title} explained",
             ],
-            key_concepts=[run.title],
+            key_concepts=[
+                run.title,
+                f"{run.title} fundamentals",
+                f"{run.title} practical applications",
+            ],
         )
-        warnings.append("Query planning used fallback — LLM was unavailable")
+        warnings.append(f"Query planning used fallback ({str(e)})")
 
     # ── Step 2: Web search + scoring ──────────────────────────────────
     logger.info(f"[{run.id}] Running web search ({len(plan.web_queries)} queries)...")
