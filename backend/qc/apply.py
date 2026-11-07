@@ -141,7 +141,13 @@ def apply_fixes(run: LessonRun) -> dict:
     changes_made = 0
 
     for section in current_content.sections:
+        # Check by section.id or match by heading
         issues_for_section = section_issues.get(section.id, [])
+        if not issues_for_section:
+            # Check by section heading match
+            for sec_key, iss_list in section_issues.items():
+                if sec_key and sec_key.lower() in section.heading.lower():
+                    issues_for_section.extend(iss_list)
 
         if not issues_for_section:
             continue

@@ -117,20 +117,37 @@ def extract_content(url: str) -> Optional[str]:
         return None
 
 
+def _heuristic_reliability(url: str, title: str) -> tuple[float, str]:
+    """Calculate rule-based reliability based on domain reputation."""
+    url_lower = url.lower()
+    title_lower = title.lower()
+
+    if any(d in url_lower for d in ["developer.mozilla.org", "w3.org", "rfc-editor.org", "ietf.org"]):
+        return 0.98, "Official web/internet standards authority documentation"
+    elif any(d in url_lower for d in [".edu", ".gov", ".ac.uk"]):
+        return 0.92, "Academic/governmental authoritative institution"
+    elif any(d in url_lower for d in ["postman.com", "cloudflare.com", "digitalocean.com", "git-scm.com", "python.org"]):
+        return 0.88, "Authoritative technical vendor/organization documentation"
+    elif any(d in url_lower for d in ["geeksforgeeks.org", "baeldung.com", "stackoverflow.com", "freecodecamp.org"]):
+        return 0.72, "Reputable community technical reference"
+    elif any(d in url_lower for d in ["linkedin.com", "medium.com", "dev.to"]):
+        return 0.55, "Community/personal blog article"
+    return 0.60, "General web reference"
+
+
 # ── Source reliability scoring via LLM ────────────────────────────────────
 
 def score_sources(sources: list[Source], objective: str) -> list[Source]:
-    """Score sources for reliability and relevance using the LLM.
-
-    Args:
-        sources: List of Source objects to score.
-        objective: The lesson learning objective for relevance scoring.
-
-    Returns:
-        Same sources with updated reliability and relevance scores.
-    """
+    """Score sources for reliability and relevance using domain heuristics + LLM."""
     if not sources:
         return sources
+
+    # First apply rule-based heuristics so official domains like MDN/RFC never get 0.0
+    for src in sources:
+        h_score, h_reason = _heuristic_reliability(src.url, src.title)
+        src.reliability_score = h_score
+        src.reliability_reason = h_reason
+        src.relevance_score = 0.80
 
     from backend.llm import generate
 
@@ -152,7 +169,8 @@ def score_sources(sources: list[Source], objective: str) -> list[Source]:
 
     prompt = (
         f"Lesson objective: {objective}\n\n"
-        f"Score each of the following {len(sources)} sources for reliability and relevance.\n"
+        f"Score each of the following {len(sources)} sources for reliability (0.0 to 1.0) and relevance (0.0 to 1.0).\n"
+        f"Important: Official docs like MDN, RFCs, and vendor guides should be scored 0.90 to 1.0.\n"
         f"Return exactly {len(sources)} scores in the same order.\n"
         f"{sources_desc}"
     )
@@ -163,19 +181,16 @@ def score_sources(sources: list[Source], objective: str) -> list[Source]:
         for i, src in enumerate(sources):
             if i < len(result.scores):
                 score = result.scores[i]
-                src.reliability_score = score.reliability_score
-                src.reliability_reason = score.reliability_reason
+                # Keep the higher score between heuristic and LLM for reliability
+                src.reliability_score = max(src.reliability_score, score.reliability_score)
+                if score.reliability_reason:
+                    src.reliability_reason = score.reliability_reason
                 src.relevance_score = score.relevance_score
 
         logger.info(f"Scored {len(sources)} web sources for reliability and relevance")
 
     except Exception as e:
-        logger.error(f"Source scoring failed: {e}")
-        # Assign default scores rather than crashing
-        for src in sources:
-            src.reliability_score = 0.5
-            src.reliability_reason = "Auto-scoring unavailable"
-            src.relevance_score = 0.5
+        logger.warning(f"LLM source scoring fell back to domain heuristics: {e}")
 
     return sources
 
