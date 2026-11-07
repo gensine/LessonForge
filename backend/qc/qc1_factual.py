@@ -43,18 +43,6 @@ class ClaimVerification(BaseModel):
     issue: str = Field(default="", description="Description of the problem, if any")
 
 
-class FactualAudit(BaseModel):
-    """Complete QC1 audit result."""
-    score: float = Field(ge=0.0, le=10.0, description="Overall factual accuracy score")
-    summary: str = Field(description="Executive summary of the audit findings")
-    claims: list[ClaimVerification] = Field(default_factory=list)
-    missing_concepts: list[str] = Field(
-        default_factory=list,
-        description="Key concepts from the objective that are missing from the lesson"
-    )
-    issues: list[QC1Issue] = Field(default_factory=list)
-
-
 class QC1Issue(BaseModel):
     """A factual/research issue found during QC1."""
     severity: str = Field(description="high | med | low")
@@ -66,8 +54,16 @@ class QC1Issue(BaseModel):
     suggested_fix: str = Field(default="")
 
 
-# Fix forward reference
-FactualAudit.model_rebuild()
+class FactualAudit(BaseModel):
+    """Complete QC1 audit result."""
+    score: float = Field(ge=0.0, le=10.0, description="Overall factual accuracy score")
+    summary: str = Field(description="Executive summary of the audit findings")
+    claims: list[ClaimVerification] = Field(default_factory=list)
+    missing_concepts: list[str] = Field(
+        default_factory=list,
+        description="Key concepts from the objective that are missing from the lesson"
+    )
+    issues: list[QC1Issue] = Field(default_factory=list)
 
 
 # ── Programmatic checks ──────────────────────────────────────────────────
